@@ -4,15 +4,15 @@ from dash import dcc, html, dash_table
 from dash.exceptions import PreventUpdate
 from app import app
 
-# Define the app layout
+# Define the layout for the Virtual Assistant Database
 layout = dbc.Container([
-    # Title Row for Patient Profile Management
+    # Title Row for Virtual Assistant Database
     dbc.Row(
         [
             dbc.Col(
                 [
                     html.H2(
-                        'Client Database', 
+                        'Virtual Assistant Database', 
                         style={"marginBottom": "0px"}  # Reduce space below heading
                     ),
                 ],
@@ -20,8 +20,8 @@ layout = dbc.Container([
             ),
             dbc.Col(
                 dbc.Button(
-                    "Add New Client",
-                    href='/client/client_management_profile?mode=add',
+                    "Add New Virtual Assistant",
+                    href='/va/va_management_profile?mode=add',
                     style={"borderRadius": "20px", "fontWeight": "bold", "fontSize": "18px", "backgroundColor": "#194D62", "color": "white", "marginBottom": "0px"},
                     className="float-end"
                 ),
@@ -34,20 +34,20 @@ layout = dbc.Container([
     ),
     html.Hr(),
 
-    # Row for search bar and Add New Patient button
+    # Row for search bar and Add New VA button
     dbc.Row(
         [
             dbc.Col(
                 [
                     html.Label(
-                        "Search Client Name", 
+                        "Search VA Name", 
                         className="form-label", 
                         style={"fontSize": "18px", "fontWeight": "bold"}
                     ),
                     dcc.Input(
-                        id="search_client_name",  # ID for search bar
+                        id="search_virtual_assistant_name",  # ID for search bar
                         type="text",
-                        placeholder="Enter Client name...",
+                        placeholder="Enter VA name...",
                         className="form-control",
                         style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
                     ),
@@ -62,26 +62,26 @@ layout = dbc.Container([
         dash_table.DataTable(
             id="reports-table",
             columns=[
-                {"name": "Client ID", "id": "client_id"},
-                {"name": "Client Name", "id": "client_name"},
-                {"name": "Client Company", "id": "client_company"},
-                {"name": "Client Email Address", "id": "client_email_address"},
+                {"name": "VA ID", "id": "va_id"},
+                {"name": "VA Name", "id": "va_name"},
+                {"name": "VA Email Address", "id": "va_email_address"},
+                {"name": "Date Hired", "id": "date_hired"},
                 {"name": "Action", "id": "action", "presentation": "markdown"}  # Change to markdown
             ],
             data=[
                 {
-                    "client_id": "1", 
-                    "client_name": "Jason Bauer", 
-                    "client_company": "Head Over Heels", 
-                    "client_email_address": "jason@hohgymnj.com", 
-                    "action": f"[Edit](/client_profile/client_management_profile?mode=edit&id=1)"
+                    "va_id": "1", 
+                    "va_name": "Fumi Cabrales", 
+                    "va_email_address": "fumi@hohgymnj.com", 
+                    "date_hired": "", 
+                    "action": f"[Edit](/va_profile/va_management_profile?mode=edit&id=1)"
                 },
                 {
-                    "client_id": "2", 
-                    "client_name": "Mandi Wilson-Saur", 
-                    "client_company": "Northwest Gymnastics Inc.", 
-                    "client_email_address": "mandiwilson1225@gmail.com", 
-                    "action": f"[Edit](/client_profile/client_management_profile?mode=edit&id=2)"
+                    "va_id": "2", 
+                    "va_name": "Cheska Miranda", 
+                    "va_email_address": "cheska@hohgymnj.com", 
+                    "date_hired": "", 
+                    "action": f"[Edit](/va_profile/va_management_profile?mode=edit&id=2)"
                 },
             ],
             style_cell={
