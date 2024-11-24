@@ -8,7 +8,11 @@ from dash.exceptions import PreventUpdate
 # callbacks here
 from app import app
 
-navlink_style = {'color': '#ffffff', 'margin-right': '1.5em', 'text-align': 'center'}
+navlink_style = {
+    'color': '#ffffff', 
+    'margin-right': '1.5em', 
+    'text-align': 'center'
+}
 
 navbar = dbc.Navbar(
     [
