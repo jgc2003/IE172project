@@ -11,7 +11,14 @@ from app import app
 navlink_style = {
     'color': '#ffffff', 
     'margin-right': '1.5em', 
-    'text-align': 'center'
+    'text-align': 'center'}
+
+navlink_active_style = {
+    'color': '#062937',
+    'font-size': '20px',
+    'borderBottom': '3px solid white',
+    'margin': '0 1.5em',
+    'padding': '10px 0',
 }
 
 navbar = dbc.Navbar(
@@ -37,9 +44,9 @@ navbar = dbc.Navbar(
                     dbc.NavLink(
                         html.Div([
                             html.I(className="bi bi-link-45deg", style={"font-size": "1.2em"}),  # Icon
-                            html.Span("ASSIGNMENTS", style={"font-size": "0.8em"}),  # Text
+                            html.Span("JOBS", style={"font-size": "0.8em"}),  # Text
                         ], className="d-flex flex-column align-items-center"),  # Stacks icon and text vertically
-                        href="/jobs",
+                        href="/jobs_profile",
                         style=navlink_style
                     )
                 ),
@@ -49,7 +56,7 @@ navbar = dbc.Navbar(
                             html.I(className="bi bi-person-fill", style={"font-size": "1.2em"}),
                             html.Span("CLIENTS", style={"font-size": "0.8em"}),
                         ], className="d-flex flex-column align-items-center"),
-                        href="/clients",
+                        href="/client_profile",
                         style=navlink_style
                     )
                 ),
@@ -59,7 +66,7 @@ navbar = dbc.Navbar(
                             html.I(className="bi bi-people-fill", style={"font-size": "1.2em"}),
                             html.Span("VAs", style={"font-size": "0.8em"}),
                         ], className="d-flex flex-column align-items-center"),
-                        href="/va",
+                        href="/va_profile",
                         style=navlink_style
                     )
                 ),
@@ -69,7 +76,7 @@ navbar = dbc.Navbar(
                             html.I(className="bi bi-stars", style={"font-size": "1.2em"}),
                             html.Span("SKILLS", style={"font-size": "0.8em"}),
                         ], className="d-flex flex-column align-items-center"),
-                        href="/skills",
+                        href="/skills_profile",
                         style=navlink_style
                     )
                 ),
@@ -79,7 +86,7 @@ navbar = dbc.Navbar(
                             html.I(className="bi bi-clipboard", style={"font-size": "1.2em"}),
                             html.Span("REPORT", style={"font-size": "0.8em"}),
                         ], className="d-flex flex-column align-items-center"),
-                        href="/reports",
+                        href="/reports_profile",
                         style=navlink_style
                     )
                 ),
