@@ -1,194 +1,310 @@
+from urllib.parse import parse_qs, urlparse
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State, dcc, html
-from dash.exceptions import PreventUpdate
+from dash import dcc, html
 
+from dash import Input, Output, State
 from app import app
-from apps.dbconnect import getDataFromDB, modifyDB
+from dbconnect import getDataFromDB, modifyDB
+from dash.exceptions import PreventUpdate
 
 layout = html.Div(
     [
-        html.H2('client Details'), # Page Header
+        dcc.Store(id='clientprofile_id', storage_type='memory', data=0),
+        dbc.Row(
+            [
+                dbc.Col(html.H2(id="client_profile_header", style={'font-size': '25px'}), width="auto"),
+                dbc.Col(
+                    dbc.Button(
+                        "Cancel",
+                        color="secondary",
+                        href="/client_profile",
+                        style={
+                            "borderRadius": "20px",
+                            "fontWeight": "bold",
+                            "fontSize": "16px",
+                            "marginRight": "10px",
+                            "backgroundColor": "#194D62"
+                        }
+                    ),
+                    width="auto"
+                ),
+            ],
+            align="center",
+            className="mb-4"
+        ),
+        
         html.Hr(),
-        dbc.Alert(id='clientprofile_alert', is_open=False), # For feedback purposes
+        
+        # Form Layout
         dbc.Form(
             [
+
+                # First Name
                 dbc.Row(
                     [
-                        dbc.Label("Title", width=1),
+                        dbc.Label("First Name", width=2),
                         dbc.Col(
                             dbc.Input(
-                                type='text', 
-                                id='clientprofile_title',
-                                placeholder="Title"
+                                type='text',
+                                id='first_name',
+                                placeholder='Enter First Name',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
                             ),
-                            width=5
-                        )
+                            width=8
+                        ),
                     ],
-                    className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("company", width=1),
-                        dbc.Col(
-                            html.Div(
-                                dcc.Dropdown(
-                                    id='clientprofile_company',
-                                    placeholder='company'
-                                ),
-                                className='dash-bootstrap'
-                            ),
-                            width=5,
-                        )
-                    ],
-                    className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Release Date", width=1),
-                        dbc.Col(
-                            dcc.DatePickerSingle(
-                                id='clientprofile_releasedate',
-                                placeholder='Release Date',
-                                month_format='MMM Do, YY',
-                            ),
-                            width=5, 
-                            className='dash-bootstrap'
-                        )
-                    ],
-                    className='mb-3'
+                    className="mb-3"
                 ),
 
+                # Last Name
+                dbc.Row(
+                    [
+                        dbc.Label("Last Name", width=2),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text',
+                                id='last_name',
+                                placeholder='Enter Last Name',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                            ),
+                            width=8
+                        ),
+                    ],
+                    className="mb-3"
+                ),
+                
+                # Company Name
+                dbc.Row(
+                    [
+                        dbc.Label("Company Name", width=2),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text',
+                                id='company_name',
+                                placeholder='Enter Company Name',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                            ),
+                            width=8
+                        ),
+                    ],
+                    className="mb-3"
+                ),
+
+                # Email Address
+                dbc.Row(
+                    [
+                        dbc.Label("Email Address", width=2),
+                        dbc.Col(
+                            dbc.Input(
+                                type='email',
+                                id='email_address',
+                                placeholder='Enter Email Address',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                            ),
+                            width=8
+                        ),
+                    ],
+                    className="mb-3"
+                ),
+                
+                # Date Acquired
+                dbc.Row(
+                    [
+                        dbc.Label("Date Acquired", width=2),
+                        dbc.Col(
+                            dbc.Input(
+                                type='date',
+                                id='date_acquired',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                            ),
+                            width=8
+                        ),
+                    ],
+                    className="mb-3"
+                ),
+                
+                # Status
+                dbc.Row(
+                    [
+                        dbc.Label("Status", width=2),
+                        dbc.Col(
+                            dbc.Select(
+                                id='status',
+                                options=[
+                                    {'label': 'ACTIVE', 'value': 'ACTIVE'},
+                                    {'label': 'INACTIVE', 'value': 'INACTIVE'}
+                                ],
+                                placeholder='Select Status',
+                                className="form-control",
+                                style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                            ),
+                            width=8
+                        ),
+                    ],
+                    className="mb-3"
+                ),
+              
+                html.Div(
+                    [
+                        dbc.Checklist(
+                            id='client_profile_delete',
+                            options=[dict(value=1, label="Mark as Deleted")],
+                            value=[]
+                        )
+                    ],
+                    id='clientprofile_deletediv'
+                ),
+
+                dbc.Button(
+                    "Submit", 
+                    color="primary", 
+                    className="mt-3",
+                    id='submit_button',
+                    style={
+                        "borderRadius": "20px",
+                        "fontWeight": "bold",
+                        "fontSize": "18px",
+                        "backgroundColor": "#194D62",
+                        "color": "white"
+                    },
+                )
             ]
         ),
-          dbc.Button(
-            'Submit',
-            id='clientprofile_submit',
-            n_clicks=0 # Initialize number of clicks
-        ),
-        dbc.Modal( # Modal = dialog box; feedback for successful saving.
-            [
-                dbc.ModalHeader(
-                    html.H4('Save Success')
-                ),
-                dbc.ModalBody(
-                    'Message here! Edit me please!'
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed",
-                        href='/clients/client_management' # Clicking this would lead to a change of pages
-                    )
-                )
-            ],
-            centered=True,
-            id='clientprofile_successmodal',
-            backdrop='static' # Dialog box does not go away if you click at the background
-        )
-    ]
+        dbc.Alert(id='submit_alert', is_open=False)
+    ],
+    className="container mt-4"
 )
-
+#Hides Mark as Deleted During Add Mode
 @app.callback(
     [
-        Output('clientprofile_company', 'options')
+        Output('clientprofile_id', 'data'),
+        Output('clientprofile_deletediv', 'className')
     ],
-    [
-        Input('url', 'pathname')
-    ]
+    [Input('url', 'pathname')],
+    [State('url', 'search')]
 )
-def clientprofile_populatecompanys(pathname):
-    if pathname == '/clients/client_management_profile':
-        sql = """
-        SELECT company_name as label, company_id as value
-        FROM companys 
-        WHERE company_delete_ind = False
-        """
-        values = []
-        cols = ['label', 'value']
+def client_profile_load(pathname, urlsearch):
+    if pathname == '/client_profile/client_management_profile':
+        parsed = urlparse(urlsearch)
+        create_mode = parse_qs(parsed.query).get('mode', [''])[0]
 
-        df = getDataFromDB(sql, values, cols)
-        # The output must be a dictionary with the following structure
-        # options=[
-        #     {'label': "Factorial", 'value': 1},
-        #     {'label': "Palindrome Checker", 'value': 2},
-        #     {'label': "Greeter", 'value': 3},
-        # ]
+        if create_mode == 'add':
+            clientprofile_id = 0
+            deletediv = 'd-none'
+            
+        else:
+            clientprofile_id = int(parse_qs(parsed.query).get('id', [0])[0])
+            deletediv =''
+        
+        return [clientprofile_id, deletediv]
+    else:
+        raise PreventUpdate
+#Dynamic Header
+@app.callback(
+    Output('client_profile_header', 'children'),
+    Input('url', 'search')
+)
+def update_header(urlsearch):
+    parsed = urlparse(urlsearch)
+    create_mode = parse_qs(parsed.query).get('mode', [''])[0]
+    
+    if create_mode == 'add':
+        return "Add New Client"
+    else:
+        return "Edit Client Details"
+#This inserts into database
+@app.callback(
+    [Output('submit_alert', 'color'),
+     Output('submit_alert', 'children'),
+     Output('submit_alert', 'is_open')],
+    [Input('submit_button', 'n_clicks')],
+    [State('first_name', 'value'),
+     State('last_name', 'value'),
+     State('company_name', 'value'),
+     State('email_address', 'value'),
+     State('date_acquired', 'value'),
+     State('status', 'value'),
+     State('url', 'search'),
+     State('clientprofile_id', 'data')]
+)
+def submit_form(n_clicks, first_name, last_name, company_name, email_address, date_acquired, status, urlsearch, clientprofile_id):
+    
+    ctx = dash.callback_context
+    if not ctx.triggered or not n_clicks:
+        raise PreventUpdate
 
-        company_options = df.to_dict('records')
-        return [company_options]
+    parsed = urlparse(urlsearch)
+    create_mode = parse_qs(parsed.query).get('mode', [''])[0]
+
+    # Check for missing values in the required fields
+    if not all([first_name, last_name, company_name, email_address, date_acquired, status]):
+        return 'danger', 'Please fill in all required fields.', True
+
+    # SQL to insert or update the database
+    if create_mode == 'add':
+        sql = """INSERT INTO client (client_first_name, client_last_name, client_company_name, client_email, date_acquired,
+                client_status)
+                VALUES (%s, %s, %s, %s, %s, %s);"""
+        
+        values = [first_name, last_name, company_name, email_address, date_acquired, status]
+    
+    elif create_mode == 'edit':
+        sql = """UPDATE client
+                SET client_first_name = %s,
+                    client_last_name = %s,
+                    client_company_name = %s,
+                    client_email = %s,
+                    date_acquired = %s,
+                    client_status = %s
+                WHERE client_id = %s;"""
+        
+        values = [first_name, last_name, company_name, email_address, date_acquired, status, clientprofile_id]
     else:
         raise PreventUpdate
 
-        
+    try:
+        modifyDB(sql, values)
+        return 'Success', 'Client Profile Submitted Successfully!', True
+    except Exception as e:
+        return 'danger', f'Error Occurred: {e}', True
+
+#This prepopulates during edit mode
 @app.callback(
-    [
-        # dbc.Alert Properties
-        Output('clientprofile_alert', 'color'),
-        Output('clientprofile_alert', 'children'),
-        Output('clientprofile_alert', 'is_open'),
-        # dbc.Modal Properties
-        Output('clientprofile_successmodal', 'is_open')
+    [Output('first_name', 'value'),
+    Output('last_name', 'value'),
+    Output('company_name', 'value'),
+    Output('email_address', 'value'),
+    Output('date_acquired', 'value'),
+    Output('status', 'value'),
     ],
-    [
-        # For buttons, the property n_clicks 
-        Input('clientprofile_submit', 'n_clicks')
-    ],
-    [
-        # The values of the fields are States 
-        # They are required in this process but they 
-        # do not trigger this callback
-        State('clientprofile_title', 'value'),
-        State('clientprofile_company', 'value'),
-        State('clientprofile_releasedate', 'date'),
-    ]
+    [Input('clientprofile_id', 'modified_timestamp'),],
+
+    [State('clientprofile_id', 'data'),]
 )
-def clientprofile_saveprofile(submitbtn, title, company, releasedate):
-    ctx = dash.callback_context
-    # The ctx filter -- ensures that only a change in url will activate this callback
-    if ctx.triggered:
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        if eventid == 'clientprofile_submit' and submitbtn:
-            # the submitbtn condition checks if the callback was indeed activated by a click
-            # and not by having the submit button appear in the layout
+def client_profile_populate(timestamp, clientprofile_id):
+    if clientprofile_id > 0:
+        sql = """SELECT client_first_name, client_last_name, client_company_name, client_email, date_acquired, client_status
+                FROM client
+                WHERE client_id = %s"""
+        values = [clientprofile_id]
+        col = ['first_name', 'last_name', 'company_name', 'email_address', 'date_acquired', 'status']
 
-            # Set default outputs
-            alert_open = False
-            modal_open = False
-            alert_color = ''
-            alert_text = ''
+        df = getDataFromDB(sql, values, col)
 
-            # We need to check inputs
-            if not title: # If title is blank, not title = True
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please supply the client title.'
-            elif not company:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please supply the client company.'
-            elif not releasedate:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please supply the client release date.'
-            else: # all inputs are valid
-                # Add the data into the db
+        firstname = df['first_name'][0]
+        lastname = df['last_name'][0]
+        companyname = df['company_name'][0]
+        emailaddress = df['email_address'][0]
+        dateacquired = df['date_acquired'][0]
+        status = df['status'][0]
 
-                sql = '''
-                    INSERT INTO clients (client_name, company_id,
-                        client_release_date, client_delete_ind)
-                    VALUES (%s, %s, %s, %s)
-                '''
-                values = [title, company, releasedate, False]
-
-                modifyDB(sql, values)
-
-                # If this is successful, we want the successmodal to show
-                modal_open = True
-
-            return [alert_color, alert_text, alert_open, modal_open]
-
-        else: 
-            raise PreventUpdate
-
+        return [
+            firstname, lastname, companyname, emailaddress, dateacquired, status]
     else:
         raise PreventUpdate
