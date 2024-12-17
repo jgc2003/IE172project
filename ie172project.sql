@@ -1,5 +1,5 @@
 CREATE TABLE clients(
-  cliend_id serial primary key not null,
+  client_id serial primary key not null,
   client_first_m varchar(32) not null,
   client_last_m varchar(32) not null,
   client_company varchar(128) not null,
