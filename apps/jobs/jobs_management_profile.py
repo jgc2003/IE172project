@@ -353,10 +353,11 @@ def update_header(urlsearch):
      State('start_date', 'value'),
      State('assignment_date', 'value'),
      State('job_status', 'value'),
+     State('jobs_profile_delete', 'value'),
      State('url', 'search'),
      State('jobmanagement_id', 'data')]
 )
-def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, job_va, start_date, assignment_date, job_status, urlsearch, jobmanagement_id):
+def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, job_va, start_date, assignment_date, job_status, job_delete, urlsearch, jobmanagement_id):
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
         raise PreventUpdate
@@ -367,13 +368,16 @@ def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly
     parsed = urlparse(urlsearch)
     create_mode = parse_qs(parsed.query).get('mode', [''])[0]
 
+    # Determine if the client is marked for deletion
+    delete_flag = True if job_delete else False
+
     try:
         if create_mode == 'add':
             sql_job = """
-            INSERT INTO jobs (job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, client_id, va_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO jobs (job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, client_id, va_id, job_delete_ind)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            values_job = [job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, job_client, job_va]
+            values_job = [job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, job_client, job_va, delete_flag]
             job_id = modifyDB(sql_job, values_job)
 
             sql_skills = "INSERT INTO jobs_skills (job_id, skill_id) VALUES (%s, %s)"
@@ -394,10 +398,11 @@ def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly
                     assignment_date=%s, 
                     job_status=%s, 
                     client_id=%s, 
-                    va_id=%s
+                    va_id=%s,
+                    job_delete_ind=%s
                 WHERE job_id=%s
             """
-            values_job = [job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, job_client, job_va, jobmanagement_id]
+            values_job = [job_title, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status, job_client, job_va, delete_flag, jobmanagement_id]
             modifyDB(sql_job, values_job)
 
             sql_delete_skills = "DELETE FROM jobs_skills WHERE job_id = %s"
