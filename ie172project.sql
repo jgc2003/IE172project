@@ -39,7 +39,7 @@ CREATE TABLE jobs(
   job_status varchar(32) not null,
   client_id int references clients(client_id),
   va_id int references va(va_id),
-  va_delete_ind boolean default false
+  job_delete_ind boolean default false
 );
 
 CREATE TABLE jobs_skills(
