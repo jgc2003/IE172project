@@ -261,10 +261,11 @@ def update_header(urlsearch):
      State('va_skills', 'value'),
      State('date_hired', 'value'),
      State('va_status', 'value'),
+     State('va_profile_delete', 'value'),
      State('url', 'search'),
      State('vaprofile_id', 'data')]
 )
-def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, va_skills, date_hired, va_status, urlsearch, vaprofile_id):
+def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, va_skills, date_hired, va_status, va_delete, urlsearch, vaprofile_id):
     
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
@@ -276,12 +277,15 @@ def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, v
     # Check for missing values in the required fields
     if not all([vafirst_name, valast_name, vaemail_address, address, va_skills, date_hired, va_status]):
         return 'danger', 'Please fill in all required fields.', True
+    
+    # Determine if the client is marked for deletion
+    delete_flag = True if va_delete else False
 
     # SQL to insert or update the database
     if create_mode == 'add':
-        sql_va = """INSERT INTO va (va_first_m, va_last_m, va_email, va_address, date_hired, va_status)
-                VALUES (%s, %s, %s, %s, %s, %s);"""        
-        values_va = [vafirst_name, valast_name, vaemail_address, address, date_hired, va_status]
+        sql_va = """INSERT INTO va (va_first_m, va_last_m, va_email, va_address, date_hired, va_status, va_delete_ind)
+                VALUES (%s, %s, %s, %s, %s, %s, %s);"""        
+        values_va = [vafirst_name, valast_name, vaemail_address, address, date_hired, va_status, delete_flag]
         va_id = modifyDB(sql_va, values_va)
 
         sql_skills = "INSERT INTO va_skills (va_id, skill_id) VALUES (%s, %s)"
@@ -299,9 +303,10 @@ def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, v
                     va_address = %s,
                     date_hired = %s,
                     va_status = %s
+                    va_delete_ind = %s
                 WHERE va_id=%s
             """
-        values_va = [vafirst_name, valast_name, vaemail_address, address, date_hired, va_status, vaprofile_id]
+        values_va = [vafirst_name, valast_name, vaemail_address, address, date_hired, va_status, delete_flag, vaprofile_id]
         modifyDB(sql_va, values_va)
 
         sql_delete_skills = "DELETE FROM va_skills WHERE va_id = %s"
