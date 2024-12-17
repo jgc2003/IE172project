@@ -152,10 +152,11 @@ def update_header(urlsearch):
     [Input('skillsubmit_button', 'n_clicks')],
     [State('skill_name', 'value'),
      State('skill_description', 'value'),
+     State('skill_profile_delete', 'value'),
      State('url', 'search'),
      State('skillprofile_id', 'data')]
 )
-def submit_form(n_clicks, skill_name, skill_description, urlsearch, skillprofile_id):
+def submit_form(n_clicks, skill_name, skill_description, skill_delete, urlsearch, skillprofile_id):
     
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
@@ -168,19 +169,23 @@ def submit_form(n_clicks, skill_name, skill_description, urlsearch, skillprofile
     if not all([skill_name, skill_description]):
         return 'danger', 'Please fill in all required fields.', True
 
+    # Determine if the client is marked for deletion
+    delete_flag = True if skill_delete else False
+
     # SQL to insert or update the database
     if create_mode == 'add':
-        sql = """INSERT INTO skills (skill_m, skill_description)
-                VALUES (%s, %s);"""        
-        values = [skill_name, skill_description]
+        sql = """INSERT INTO skills (skill_m, skill_description, skill_delete_ind)
+                VALUES (%s, %s, %s);"""        
+        values = [skill_name, skill_description, delete_flag]
         success_message = "New Skill Added Successfully!"
     
     elif create_mode == 'edit':
         sql = """UPDATE skills
                 SET skill_m = %s,
-                    skill_description = %s
+                    skill_description = %s,
+                    skill_delete_ind = %s
                 WHERE skill_id = %s;"""        
-        values = [skill_name, skill_description, skillprofile_id]
+        values = [skill_name, skill_description, delete_flag, skillprofile_id]
         success_message = "Skill Details Updated Successfully!"
     else:
         raise PreventUpdate
