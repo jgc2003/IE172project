@@ -89,6 +89,8 @@ def update_records_table(skillfilter):
             s.skill_description AS "Skill Description"
         FROM
             skills s
+        WHERE
+            skill_delete_ind = false
 
     """
     val = []
@@ -97,19 +99,17 @@ def update_records_table(skillfilter):
     if skillfilter:
         # Check if the filter is numeric to search by skill_id
         if skillfilter.isdigit():
-            sql += " WHERE s.skill_id = %s"
+            sql += " AND s.skill_id = %s"
             val.append(int(skillfilter))
         else:
             sql += """
-                WHERE 
+                AND 
                 s.skill_m ILIKE %s
             """
             val.extend([f'%{skillfilter}%'])
 
     # Add the GROUP BY and ORDER BY clauses
     sql += """
-        GROUP BY 
-        s.skill_id, s.skill_m, s.skill_description
         ORDER BY 
         s.skill_id
     """
