@@ -230,10 +230,11 @@ def update_header(urlsearch):
      State('clientemail_address', 'value'),
      State('date_acquired', 'value'),
      State('client_status', 'value'),
+     State('client_profile_delete', 'value'),
      State('url', 'search'),
      State('clientprofile_id', 'data')]
 )
-def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, urlsearch, clientprofile_id):
+def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, client_delete, urlsearch, clientprofile_id):
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
         raise PreventUpdate
@@ -245,23 +246,27 @@ def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemai
     if not all([clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status]):
         return 'danger', 'Please fill in all required fields.', True
 
+    # Determine if the client is marked for deletion
+    delete_flag = True if client_delete else False
+
     # SQL to insert or update the database
     if create_mode == 'add':
-        sql = """INSERT INTO clients (client_first_m, client_last_m, client_company, client_email, date_acquired, client_status)
-                VALUES (%s, %s, %s, %s, %s, %s);"""
-        values = [clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status]
+        sql = """INSERT INTO clients (client_first_m, client_last_m, client_company, client_email, date_acquired, client_status, client_delete_ind)
+                 VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+        values = [clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, delete_flag]
         success_message = "New Client Added Successfully!"
 
     elif create_mode == 'edit':
         sql = """UPDATE clients
-                SET client_first_m = %s,
-                    client_last_m = %s,
-                    client_company = %s,
-                    client_email = %s,
-                    date_acquired = %s,
-                    client_status = %s
-                WHERE client_id = %s;"""
-        values = [clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, clientprofile_id]
+                 SET client_first_m = %s,
+                     client_last_m = %s,
+                     client_company = %s,
+                     client_email = %s,
+                     date_acquired = %s,
+                     client_status = %s,
+                     client_delete_ind = %s
+                 WHERE client_id = %s;"""
+        values = [clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, delete_flag, clientprofile_id]
         success_message = "Client Profile Updated Successfully!"
     else:
         raise PreventUpdate
@@ -271,6 +276,7 @@ def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemai
         return 'success', success_message, True
     except Exception as e:
         return 'danger', f'Error Occurred: {e}', True
+
 
 #This prepopulates during edit mode
 @app.callback(
