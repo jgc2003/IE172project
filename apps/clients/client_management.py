@@ -82,42 +82,44 @@ layout = dbc.Container([
 def update_records_table(clientfilter):
     # Base SQL query for the client table
     sql = """
-       SELECT 
-    c.client_id,
-    CONCAT(c.client_first_m, ' ', c.client_last_m) AS "Client Name",
-    c.client_company AS "Company",
-    c.client_email AS "Client Email Address",
-    c.date_acquired AS "Date Acquired",
-    c.client_status AS "Status"
-        FROM 
-     clients c
+    SELECT 
+        c.client_id,
+        CONCAT(c.client_first_m, ' ', c.client_last_m) AS "Client Name",
+        c.client_company AS "Company",
+        c.client_email AS "Client Email Address",
+        c.date_acquired AS "Date Acquired",
+        c.client_status AS "Status"
+    FROM 
+        clients c
+    WHERE 
+        client_delete_ind = false
     """
     val = []
 
-    # Add the WHERE clause if a filter is provided
+    # Add additional filters
     if clientfilter:
         # Check if the filter is numeric to search by client_id
         if clientfilter.isdigit():
-            sql += " WHERE c.client_id = %s"
+            sql += " AND c.client_id = %s"
             val.append(int(clientfilter))
         else:
             sql += """
-                WHERE 
-                c.client_first_m ILIKE %s OR 
-                c.client_last_m ILIKE %s
+                AND (
+                    c.client_first_m ILIKE %s OR 
+                    c.client_last_m ILIKE %s
+                )
             """
             val.extend([f'%{clientfilter}%'] * 2)
 
-    # Add the GROUP BY and ORDER BY clauses
+    # Add ORDER BY clause
     sql += """
-        GROUP BY 
-        c.client_id, c.client_first_m, c.client_last_m, c.client_company, c.client_email, c.date_acquired, c.client_status
-        ORDER BY 
+    ORDER BY 
         c.client_id
     """
 
     # Define the column names
     col = ["Client ID", "Client Name", "Company", "Email Address", "Date Acquired", "Status"]
+
 
     # Fetch the filtered data into a DataFrame
     df = getDataFromDB(sql, val, col)
