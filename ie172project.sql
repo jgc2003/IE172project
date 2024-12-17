@@ -49,7 +49,7 @@ CREATE TABLE jobs_skills(
 );
 
 CREATE TABLE va_skills(
-  va_skill_id serial primaryu key not null,
+  va_skill_id serial primary key not null,
   va_id int references va(va_id),
   skill_id int references skill(skill_id)
 );
