@@ -111,6 +111,8 @@ def update_records_table(vafilter):
             v.va_status AS "Status"
         FROM
             va v
+        WHERE
+            va_delete_ind = false
 
     """
     val = []
@@ -119,11 +121,11 @@ def update_records_table(vafilter):
     if vafilter:
         # Check if the filter is numeric to search by va_id
         if vafilter.isdigit():
-            sql += " WHERE v.va_id = %s"
+            sql += " AND v.va_id = %s"
             val.append(int(vafilter))
         else:
             sql += """
-                WHERE 
+                AND 
                 v.va_first_m ILIKE %s OR 
                 v.va_last_m ILIKE %s
             """
@@ -131,8 +133,6 @@ def update_records_table(vafilter):
 
     # Add the GROUP BY and ORDER BY clauses
     sql += """
-        GROUP BY 
-        v.va_id, v.va_first_m, v.va_last_m, v.va_email, v.va_address, v.date_hired, v.va_status
         ORDER BY 
         v.va_id
     """
