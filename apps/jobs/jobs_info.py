@@ -40,7 +40,7 @@ layout = dbc.Container([
             dbc.Col(
                 [
                     html.Label(
-                        "Search Job Title, Client Name, VA Name or their IDs", 
+                        "Search Job Title, Client Name, VA Name or Job ID", 
                         className="form-label", 
                         style={"fontSize": "18px", "fontWeight": "bold"}
                     ),
