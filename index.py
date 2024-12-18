@@ -45,7 +45,7 @@ app.layout = html.Div(
 def update_active_link_style(pathname):
     styles = [navlink_style] * 5  # Default styles
 
-    if pathname == "/jobs_profile" or pathname== "/jobs_profile_info":
+    if pathname == "/jobs_profile_info" or pathname== "/jobs_profile_details":
         styles[0] = navlink_active_style
     elif pathname == "/client_profile":
         styles[1] = navlink_active_style
@@ -73,7 +73,7 @@ def display_page_content(pathname):
         return None, signup.layout
     elif pathname == '/home':
         return cm.navbar, home.layout
-    elif pathname == '/jobs_profile':
+    elif pathname == '/jobs_profile_details':
         return cm.navbar, jobs_management.layout
     elif pathname == '/jobs_profile/jobs_management_profile':
         return cm.navbar, jobs_management_profile.layout
