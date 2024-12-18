@@ -70,7 +70,7 @@ layout = dbc.Container([
             dbc.Col(
                 dbc.Button(
                     "Details",
-                    href='/jobs_profile',
+                    href='/jobs_profile_details',
                     style={"borderRadius": "10px", "fontWeight": "bold", "fontSize": "16px", "backgroundColor": "#194D62", "color": "white", "marginBottom": "0px", "marginRight": "0px"}
                 ), width='auto'
             ),
