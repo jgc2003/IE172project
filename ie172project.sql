@@ -23,7 +23,7 @@ CREATE TABLE va(
 CREATE TABLE skills(
   skill_id serial primary key not null,
   skill_m varchar(64) not null,
-  skill_description varchar(128) not null,
+  skill_description varchar(512) not null,
   skill_delete_ind boolean default false
 );
 
