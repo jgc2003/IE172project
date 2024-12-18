@@ -61,7 +61,7 @@ navbar = dbc.Navbar(
                 [
                     dbc.NavLink("Jobs", href="/jobs_profile_info", id="nav-jobs", style=navlink_style),
                     dbc.NavLink("Clients", href="/client_profile", id="nav-client-profile", style=navlink_style),
-                    dbc.NavLink("VAs", href="/va_profile", id="nav-va-profile", style=navlink_style),
+                    dbc.NavLink("VAs", href="/va_profile_info", id="nav-va-profile", style=navlink_style),
                     dbc.NavLink("Skills", href="/skills", id="nav-skills", style=navlink_style),
                     dbc.NavLink("Reports", href="/reports", id="nav-report", style=navlink_style),
                     dbc.NavLink("Log Out", href="/login", id="nav-logout", style={'backgroundColor': 'white','color': '#194D62','padding': '10px 20px','borderRadius': '5px','textAlign': 'center','fontWeight': 'bold','textDecoration': 'none',}),
