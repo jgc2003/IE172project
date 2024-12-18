@@ -54,6 +54,27 @@ layout = dbc.Container([
                 ],
                 md=8,
             ),
+            dbc.Col(
+                [
+                    html.Label(
+                        "Filter by Job Status", 
+                        className="form-label", 
+                        style={"fontSize": "18px", "fontWeight": "bold"}
+                    ),
+                    dcc.Dropdown(
+                        id="search_job_status",
+                        options=[
+                            {"label": "ACTIVE", "value": "ACTIVE"},
+                            {"label": "INACTIVE", "value": "INACTIVE"},
+                            {"label": "ON HOLD", "value": "ON HOLD"},
+                        ],
+                        placeholder="Select Job Status",
+                        className="form-control",
+                        style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                    ),
+                ],
+                md=8,
+            ),
         ],
         className="mb-4",
         align="center"
@@ -94,9 +115,10 @@ layout = dbc.Container([
     Output('jobs-table', 'children'),
     [
         Input('search_job_title', 'value'),
+        Input('search_job_status', 'value'),
     ]
 )
-def update_records_table(jobfilter):
+def update_records_table(jobfilter, jobstatus):
     # Base SQL query for the job table
     sql = """
         SELECT 
@@ -116,6 +138,7 @@ def update_records_table(jobfilter):
         ORDER BY 
         j.job_id
     """
+    conditions =[]
     val = []
 
     # Add the WHERE clause if a filter is provided
@@ -130,6 +153,13 @@ def update_records_table(jobfilter):
                 j.job_title ILIKE %s
             """
             val.extend([f'%{jobfilter}%'])
+
+    if jobstatus:
+        conditions.append("j.job_status = %s")
+        val.append(jobstatus)
+
+    if conditions:
+        sql += " AND " + " AND ".join(conditions)
 
     # Fetch the filtered data into a DataFrame
     col = ["Job ID", "Job Title", "Days", "Hours", "VA Hourly Rate ($)", "Synergy Hourly Commission ($)", "Job Start Date", "Assignment Start Date", "Status"]
