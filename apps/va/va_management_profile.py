@@ -18,7 +18,7 @@ layout = html.Div(
                     dbc.Button(
                         "Back",
                         color="secondary",
-                        href="/va_profile",
+                        href="/va_profile_info",
                         style={
                             "borderRadius": "20px",
                             "fontWeight": "bold",
