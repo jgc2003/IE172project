@@ -279,7 +279,7 @@ def job_profile_load(pathname, urlsearch):
     if pathname == '/jobs_profile/jobs_management_profile':
         # Fetch clients
         sql = """
-        SELECT CONCAT(client_first_m, ' ',client_last_m) as label, client_id as value
+        SELECT CONCAT(client_first_m, ' ', client_last_m) as label, client_id as value
         FROM clients
         """
         values = []
@@ -292,15 +292,14 @@ def job_profile_load(pathname, urlsearch):
         SELECT skill_m as label, skill_id as value
         FROM skills
         """
-        values = []
-        cols = ['label', 'value']
         df = getDataFromDB(sql, values, cols)
         skill_options = df.to_dict('records')
 
-        # Fetch VA options
+        # Fetch ACTIVE VA options
         sql = """
-        SELECT CONCAT(va_first_m, ' ',va_last_m) as label, va_id as value
+        SELECT CONCAT(va_first_m, ' ', va_last_m) as label, va_id as value
         FROM va
+        WHERE va_status = 'ACTIVE'
         """
         df = getDataFromDB(sql, values, cols)
         va_options = df.to_dict('records')
@@ -322,6 +321,7 @@ def job_profile_load(pathname, urlsearch):
         return [client_options, skill_options, va_options, jobmanagement_id, deletediv]  # Order of return matches Outputs
     else:
         raise PreventUpdate
+
 #Dynamic Header
 @app.callback(
     Output('job_profile_header', 'children'),
@@ -361,16 +361,21 @@ def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly
     if not ctx.triggered or not n_clicks:
         raise PreventUpdate
 
-    if not all([job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status]):
+    # Validate required fields (excluding assignment_date since it's optional)
+    if not all([job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, start_date, job_status]):
         return 'danger', 'Please fill in all required fields.', True
 
     # Convert 'NOT_ASSIGNED' to None
     job_va = None if job_va == 'NOT_ASSIGNED' else job_va
 
+    # Parse URL for mode
     parsed = urlparse(urlsearch)
     create_mode = parse_qs(parsed.query).get('mode', [''])[0]
 
     delete_flag = True if job_delete else False
+
+    # Handle null values for assignment_date
+    assignment_date = assignment_date if assignment_date else None
 
     try:
         if create_mode == 'add':
