@@ -119,13 +119,15 @@ def update_records_table(jobinfofilter):
             skills ON jobs_skills.skill_id = skills.skill_id
         LEFT JOIN 
             va ON jobs.va_id = va.va_id
+        WHERE 
+            job_delete_ind = false
     """
     val = []
 
     # Add the WHERE clause if a filter is provided
     if jobinfofilter:
         # Initialize WHERE clause
-        sql += " WHERE "
+        sql += " AND "
         conditions = []
 
         # If the filter is numeric (for job_id)
@@ -146,21 +148,14 @@ def update_records_table(jobinfofilter):
             val.append(f'%{jobinfofilter}%')
 
         # Join all conditions with OR
-        sql += " OR ".join(conditions)
+        sql += " WHERE " + " OR ".join(conditions)
 
-    # Add GROUP BY to include all non-aggregated columns
+    # Add the GROUP BY and ORDER BY clauses
     sql += """
         GROUP BY 
-            jobs.job_id, 
-            jobs.job_title, 
-            clients.client_first_m, 
-            clients.client_last_m, 
-            va.va_first_m, 
-            va.va_last_m, 
-            jobs.job_status
-    """
-
-    sql += " ORDER BY jobs.job_id"  # Ensure this is always applied
+            jobs.job_id, jobs.job_title, clients.client_first_m, clients.client_last_m, jobs.job_status, va.va_first_m, va.va_last_m
+        ORDER BY 
+            jobs.job_id"""
 
     # Fetch the filtered data into a DataFrame
     col = ["Job ID", "Job Title", "Client Name", "Required Skills", "Assigned VA"]
