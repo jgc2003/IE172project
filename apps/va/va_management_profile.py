@@ -265,7 +265,7 @@ def update_header(urlsearch):
      State('url', 'search'),
      State('vaprofile_id', 'data')]
 )
-def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, va_skills, date_hired, va_status, va_delete, urlsearch, vaprofile_id):
+def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, va_skills, date_hired, va_status, va_profile_delete, urlsearch, vaprofile_id):
     
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
@@ -279,7 +279,7 @@ def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, v
         return 'danger', 'Please fill in all required fields.', True
     
     # Determine if the client is marked for deletion
-    delete_flag = True if va_delete else False
+    delete_flag = True if va_profile_delete else False
 
     # SQL to insert or update the database
     if create_mode == 'add':
@@ -302,7 +302,7 @@ def submit_form(n_clicks, vafirst_name, valast_name, vaemail_address, address, v
                     va_email = %s,
                     va_address = %s,
                     date_hired = %s,
-                    va_status = %s
+                    va_status = %s,
                     va_delete_ind = %s
                 WHERE va_id=%s
             """
