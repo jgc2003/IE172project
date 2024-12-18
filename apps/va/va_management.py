@@ -34,7 +34,7 @@ layout = dbc.Container([
     ),
     html.Hr(),
 
-    # Row for search bar and Add New va button
+    # Row for search bar
     dbc.Row(
         [
             dbc.Col(
@@ -48,6 +48,27 @@ layout = dbc.Container([
                         id="search_va_name",  # ID for search bar
                         type="text",
                         placeholder="Enter VA ID or name...",
+                        className="form-control",
+                        style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
+                    ),
+                ],
+                md=8,
+            ),
+            dbc.Col(
+                [
+                    html.Label(
+                        "Filter by VA Status", 
+                        className="form-label", 
+                        style={"fontSize": "18px", "fontWeight": "bold"}
+                    ),
+                    dcc.Dropdown(
+                        id="search_va_status",
+                        options=[
+                            {"label": "ACTIVE", "value": "ACTIVE"},
+                            {"label": "INACTIVE", "value": "INACTIVE"},
+                            {"label": "ON HOLD", "value": "ON HOLD"},
+                        ],
+                        placeholder="Select VA Status",
                         className="form-control",
                         style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
                     ),
@@ -96,10 +117,11 @@ layout = dbc.Container([
     Output('va-table', 'children'),
     [
         Input('search_va_name', 'value'),
+        Input('search_va_status', 'value'),
     ]
 )
 
-def update_records_table(vafilter):
+def update_records_table(vafilter, vastatus):
     # Base SQL query for the va table
     sql = """
         SELECT 
@@ -115,6 +137,7 @@ def update_records_table(vafilter):
             va_delete_ind = false
 
     """
+    conditions = []
     val = []
 
     # Add the WHERE clause if a filter is provided
@@ -130,6 +153,13 @@ def update_records_table(vafilter):
                 v.va_last_m ILIKE %s
             """
             val.extend([f'%{vafilter}%'] * 2)
+
+    if vastatus:
+        conditions.append("v.va_status = %s")
+        val.append(vastatus)
+
+    if conditions:
+        sql += " AND " + " AND ".join(conditions)
 
     # Add the GROUP BY and ORDER BY clauses
     sql += """
