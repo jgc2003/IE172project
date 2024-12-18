@@ -167,7 +167,6 @@ layout = html.Div(
                                 dcc.Dropdown(
                                     id='job_va',
                                     placeholder='VA Name',
-                                    options=[{'label': 'NOT ASSIGNED', 'value': 'NOT_ASSIGNED'}],  # Add default "NOT ASSIGNED" option
                                     style={"borderRadius": "20px", "backgroundColor": "#f0f2f5", "fontSize": "18px"}
                                 ),
                                 className='dash-bootstrap'
@@ -362,13 +361,15 @@ def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly
     if not ctx.triggered or not n_clicks:
         raise PreventUpdate
 
-    if not all([job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, job_va, start_date, assignment_date, job_status]):
+    if not all([job_title, job_client, job_skills, days, hours, hourly_rate, hourly_commission, start_date, assignment_date, job_status]):
         return 'danger', 'Please fill in all required fields.', True
+
+    # Convert 'NOT_ASSIGNED' to None
+    job_va = None if job_va == 'NOT_ASSIGNED' else job_va
 
     parsed = urlparse(urlsearch)
     create_mode = parse_qs(parsed.query).get('mode', [''])[0]
 
-    # Determine if the client is marked for deletion
     delete_flag = True if job_delete else False
 
     try:
@@ -416,7 +417,6 @@ def submit_form(n_clicks, job_title, job_client, job_skills, days, hours, hourly
     except Exception as e:
         print(f"Error: {e}")
         return 'danger', f'Error Occurred: {e}', True
-
 
 #This prepopulates during edit mode
 @app.callback(
