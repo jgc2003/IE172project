@@ -49,7 +49,7 @@ def update_active_link_style(pathname):
         styles[0] = navlink_active_style
     elif pathname == "/client_profile":
         styles[1] = navlink_active_style
-    elif pathname == "/va_profile" or pathname=="/va_skills":
+    elif pathname == "/va_profile_info" or pathname=="/va_skills":
         styles[2] = navlink_active_style
     elif pathname == "/skills":
         styles[3] = navlink_active_style
@@ -88,7 +88,7 @@ def display_page_content(pathname):
     elif pathname == '/reports':
         return cm.navbar, reports.layout        
     
-    elif pathname == '/va_profile':
+    elif pathname == '/va_profile_info':
         return cm.navbar, va_management.layout
     elif pathname == '/va_profile/va_management_profile':
         return cm.navbar, va_management_profile.layout
