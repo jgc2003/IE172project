@@ -92,9 +92,7 @@ layout = dbc.Container([
 
 @app.callback(
     Output('jobs-info-table', 'children'),
-    [
-        Input('search_job_info_title', 'value'),
-    ]
+    [Input('search_job_info_title', 'value')]
 )
 def update_records_table(jobinfofilter):
     # Base SQL query for the job table
@@ -107,6 +105,7 @@ def update_records_table(jobinfofilter):
             -- Use a CASE statement to handle the "Assigned VA" column
             CASE 
                 WHEN jobs.job_status = 'INACTIVE' THEN 'NOT ASSIGNED'
+                WHEN jobs.va_id IS NULL THEN 'NOT ASSIGNED'
                 ELSE COALESCE(CONCAT(va.va_first_m, ' ', va.va_last_m), 'NOT ASSIGNED')
             END AS "Assigned VA"
         FROM 
@@ -148,7 +147,7 @@ def update_records_table(jobinfofilter):
             val.append(f'%{jobinfofilter}%')
 
         # Join all conditions with OR
-        sql += " WHERE " + " OR ".join(conditions)
+        sql += " (" + " OR ".join(conditions) + ")"
 
     # Add the GROUP BY and ORDER BY clauses
     sql += """
@@ -164,6 +163,9 @@ def update_records_table(jobinfofilter):
     if df.empty:
         return [html.Div("No records found.", className="text-center")]
 
+    # Handle missing or None values in the Assigned VA column (Python fallback)
+    df["Assigned VA"] = df["Assigned VA"].fillna("NOT ASSIGNED")
+
     # Generating edit buttons for each job
     df['Action'] = [
         html.Div(
@@ -172,7 +174,9 @@ def update_records_table(jobinfofilter):
             className='text-center'
         ) for idx, row in df.iterrows()
     ]
+
     display_columns = ["Job ID", "Job Title", "Client Name", "Required Skills", "Assigned VA", "Action"]
+
     # Creating the updated table with centered text
     table = dbc.Table.from_dataframe(df[display_columns], striped=True, bordered=True, hover=True, size='sm', style={'textAlign': 'center'})
 
