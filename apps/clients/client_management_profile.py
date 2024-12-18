@@ -234,7 +234,7 @@ def update_header(urlsearch):
      State('url', 'search'),
      State('clientprofile_id', 'data')]
 )
-def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, client_delete, urlsearch, clientprofile_id):
+def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemail_address, date_acquired, client_status, client_profile_delete, urlsearch, clientprofile_id):
     ctx = dash.callback_context
     if not ctx.triggered or not n_clicks:
         raise PreventUpdate
@@ -247,7 +247,7 @@ def submit_form(n_clicks, clientfirst_name, clientlast_name, company, clientemai
         return 'danger', 'Please fill in all required fields.', True
 
     # Determine if the client is marked for deletion
-    delete_flag = True if client_delete else False
+    delete_flag = True if client_profile_delete else False
 
     # SQL to insert or update the database
     if create_mode == 'add':
